@@ -1,0 +1,157 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: stellar-payment-system # NOTE: update this with your service name
+
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin
+  - serverless-ignore
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+
+useDotenv: true
+variablesResolutionMode: 20210326
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  profile: my
+  stage: dev
+  region: us-east-2
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:GetItem"
+        - "dynamodb:PutItem"
+        - "dynamodb:CreateTable"
+        - "dynamodb:DescribeTable"
+        - "dynamodb:Query"
+        - "dynamodb:Scan"
+        - "dynamodb:UpdateItem"
+      Resource: "arn:aws:dynamodb:us-east-2:${env:AWS_ID}:table/${env:TABLE_NAME}"
+
+functions:
+  verify-token:
+    handler: handlers/authorize.handler
+
+  createAccount:
+    handler: handlers/account.createAccount
+    events: 
+      - http:
+          path: account
+          method: post
+          cors: true
+          authorizer:
+            name: verify-token
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 3600
+
+  getBalance:
+    handler: handlers/account.getBalance
+    events: 
+      - http:
+          path: account/{id}
+          method: get
+          cors: true
+          authorizer:
+            name: verify-token
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 3600
+
+  deleteAccount:
+    handler: handlers/account.deleteAccount
+    events: 
+      - http:
+          path: account/{id}
+          method: delete
+          cors: true
+          authorizer:
+            name: verify-token
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 3600
+
+  getDepositAddressForAsset:
+    handler: handlers/account.getDepositAddressForAsset
+    events: 
+      - http:
+          path: account/{id}/deposit
+          method: post
+          cors: true
+          authorizer:
+            name: verify-token
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 3600
+
+  createPayment:
+    handler: handlers/account.createPayment
+    events: 
+      - http:
+          path: account/{id}/pay
+          method: post
+          cors: true
+          authorizer:
+            name: verify-token
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 3600
+
+  me:
+    handler: handlers/me.handler
+    events:
+      - http:
+          path: me
+          method: get
+          cors: true
+          authorizer:
+            name: verify-token
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 3600
+
+  login:
+    handler: handlers/login.handler
+    events:
+      - http:
+          path: login
+          method: post
+          cors: true
+
+  register:
+    handler: handlers/register.handler
+    events:
+      - http:
+          path: register
+          method: post
+          cors: true
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${env:TABLE_NAME}
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: sk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
