@@ -4,14 +4,15 @@
   "description": "Crypto payment system by stellar existing rails (SEP-10,SEP-6)",
   "main": "index.js",
   "scripts": {
+    "deploy":"sls deploy --stage production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/orsab/stellar-payment-system.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Or Alkin",
+  "license": "Apache License 2.0",
   "bugs": {
     "url": "https://github.com/orsab/stellar-payment-system/issues"
   },
