@@ -29,21 +29,15 @@ const deleteAccount = async (event, context) => {
       return [];
     });
   
+    console.log({wallet})
     // Merge deleted custodian account into main
     if (acc) {
-      await mergeAccount(acc, wallet.secret, dbUser.wallet.public);
+      await mergeAccount(acc, wallet.secret, dbUser.wallet.public, dbUser.wallet.secret, dbUser.wallet.public);
     }
     // Merge deleted custodian account into main
     const updatedAccount = await delAccount(principalId, wallet).catch(
       (e) => null
     );
-  
-    // if(!acc){
-    //   return {
-    //     statusCode: 400,
-    //     body: JSON.stringify({error:'Account is not inited'})
-    //   }
-    // }
   
     return {
       statusCode: 200,

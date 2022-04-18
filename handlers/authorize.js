@@ -5,7 +5,7 @@ function generateAuthResponse(principalId, effect, methodArn) {
 
   return {
     principalId,
-    policyDocument
+    policyDocument,
   };
 }
 
@@ -18,9 +18,9 @@ function generatePolicyDocument(effect, methodArn) {
       {
         Action: "execute-api:Invoke",
         Effect: effect,
-        Resource: methodArn
-      }
-    ]
+        Resource: methodArn,
+      },
+    ],
   };
 
   return policyDocument;
@@ -35,11 +35,24 @@ module.exports.handler = function verifyToken(event, context, callback) {
   const secret = Buffer.from(process.env.JWT_SECRET, "base64");
 
   // verifies token
-  const decoded = jwt.verify(token, secret);
+  try {
+    const decoded = jwt.verify(token, secret);
 
-  if (decoded && decoded.id) {
-    return callback(null, generateAuthResponse(decoded.id, "Allow", methodArn));
-  } else {
-    return callback(null, generateAuthResponse(decoded.id, "Deny", methodArn));
+    if (decoded && decoded.id) {
+      return callback(
+        null,
+        generateAuthResponse(decoded.id, "Allow", methodArn)
+      );
+    } else {
+      return callback(
+        null,
+        generateAuthResponse(decoded.id, "Deny", methodArn)
+      );
+    }
+  } catch (e) {
+    return callback(
+      null,
+      generateAuthResponse(null, "Deny", methodArn)
+    );
   }
 };

@@ -4,7 +4,9 @@
   "description": "Crypto payment system by stellar existing rails (SEP-10,SEP-6)",
   "main": "index.js",
   "scripts": {
-    "deploy":"sls deploy --stage production",
+    "dev": "sls offline --httpPort 3005",
+    "deploy": "sls deploy --stage v0",
+    "update": "sls deploy --stage v0 function -f $1",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,6 +26,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.1092.0",
+    "axios": "^0.26.1",
     "bcryptjs": "^2.4.3",
     "dynamodb-toolbox": "^0.3.5",
     "jsonwebtoken": "^8.5.1",

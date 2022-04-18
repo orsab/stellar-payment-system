@@ -31,6 +31,7 @@ provider:
   profile: my
   stage: dev
   region: us-east-2
+  timeout: 30
 
   iamRoleStatements:
     - Effect: "Allow"
@@ -58,7 +59,7 @@ functions:
           authorizer:
             name: verify-token
             identitySource: method.request.header.Authorization
-            resultTtlInSeconds: 3600
+            resultTtlInSeconds: 0
 
   getBalance:
     handler: handlers/account.getBalance
@@ -70,7 +71,7 @@ functions:
           authorizer:
             name: verify-token
             identitySource: method.request.header.Authorization
-            resultTtlInSeconds: 3600
+            resultTtlInSeconds: 0
 
   deleteAccount:
     handler: handlers/account.deleteAccount
@@ -82,7 +83,7 @@ functions:
           authorizer:
             name: verify-token
             identitySource: method.request.header.Authorization
-            resultTtlInSeconds: 3600
+            resultTtlInSeconds: 0
 
   getDepositAddressForAsset:
     handler: handlers/account.getDepositAddressForAsset
@@ -94,7 +95,7 @@ functions:
           authorizer:
             name: verify-token
             identitySource: method.request.header.Authorization
-            resultTtlInSeconds: 3600
+            resultTtlInSeconds: 0
 
   createPayment:
     handler: handlers/account.createPayment
@@ -106,7 +107,7 @@ functions:
           authorizer:
             name: verify-token
             identitySource: method.request.header.Authorization
-            resultTtlInSeconds: 3600
+            resultTtlInSeconds: 0
 
   me:
     handler: handlers/me.handler
@@ -118,7 +119,7 @@ functions:
           authorizer:
             name: verify-token
             identitySource: method.request.header.Authorization
-            resultTtlInSeconds: 3600
+            resultTtlInSeconds: 0
 
   login:
     handler: handlers/login.handler
@@ -138,8 +139,9 @@ functions:
 
 resources:
   Resources:
-    usersTable:
+    UsersTable:
       Type: AWS::DynamoDB::Table
+      
       Properties:
         TableName: ${env:TABLE_NAME}
         AttributeDefinitions:
@@ -152,6 +154,4 @@ resources:
             KeyType: HASH
           - AttributeName: sk
             KeyType: RANGE
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+        BillingMode: PAY_PER_REQUEST

@@ -4,6 +4,7 @@ const { getUserFromToken, cleanSecretsFromUser } = require("../lib/utils");
 
 module.exports.handler = async function (event) {
   const { principalId } = event.requestContext.authorizer;
+  console.log({principalId})
 
   const dbUser = await getUserByEmail(principalId);
   cleanSecretsFromUser(dbUser)
